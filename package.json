@@ -1,0 +1,44 @@
+{
+  "name": "field-guard",
+  "version": "0.1.0",
+  "description": "A lightweight, fully type-safe, field-level access control library for TypeScript",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "bun run vitest run",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "field",
+    "guard",
+    "access-control",
+    "permission",
+    "authorization",
+    "field-level",
+    "typescript",
+    "type-safe"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohhh-ok/field-guard.git"
+  },
+  "sideEffects": false,
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.18"
+  }
+}
