@@ -91,11 +91,16 @@ verdict2.allowedFields; // ["id", "name"]
 
 ### 4. Use Verdict Helpers
 
-Each `FieldVerdict` comes with two convenience methods:
+Each `FieldVerdict` comes with convenience methods:
 
 ```ts
 verdict.coversAll(["id", "name"]);  // true — all requested fields are allowed
 verdict.coversSome(["email"]);      // true — at least one requested field is allowed
+
+// Pick only allowed fields from an object
+verdict.pick({ id: "1", email: "me@example.com", name: "Me" });
+// => { id: "1", email: "me@example.com", name: "Me" }  (owner)
+// => { id: "1", name: "Me" }                            (other)
 ```
 
 ### 5. Derive Extra Properties
@@ -191,6 +196,7 @@ Merges an array of `FieldVerdict` objects using `"union"` or `"intersection"` st
 | `allowedFields`  | `F[]`                   | List of allowed field names              |
 | `coversAll(fs)`  | `(fields: F[]) => boolean` | `true` if all given fields are allowed |
 | `coversSome(fs)` | `(fields: F[]) => boolean` | `true` if any given field is allowed   |
+| `pick(obj)`      | `(obj: T) => Partial<T>` | Pick only allowed fields from an object |
 
 ## License
 
