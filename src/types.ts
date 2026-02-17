@@ -14,6 +14,7 @@ export type FieldVerdict<F extends string> = {
   allowedFields: F[];
   coversAll: (fields: F[]) => boolean;
   coversSome: (fields: F[]) => boolean;
+  pick: <T extends Partial<Record<F, unknown>>>(obj: T) => Partial<T>;
 };
 
 export function createVerdict<F extends string>(allowedFields: F[]): FieldVerdict<F> {
@@ -22,6 +23,7 @@ export function createVerdict<F extends string>(allowedFields: F[]): FieldVerdic
     allowedFields,
     coversAll: (fields) => fields.every((f) => set.has(f)),
     coversSome: (fields) => fields.some((f) => set.has(f)),
+    pick: (obj) => Object.fromEntries(Object.entries(obj).filter(([k]) => set.has(k as F))) as any,
   };
 }
 

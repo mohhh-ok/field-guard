@@ -33,4 +33,32 @@ describe("defineGuard - FieldVerdictの機能", () => {
     expect(result.verdict.coversSome(["name", "password"])).toBe(false);
     expect(result.verdict.coversSome(["id"])).toBe(true);
   });
+
+  test("pickメソッドでオブジェクトから許可フィールドだけを抽出できる", () => {
+    const guard = defineGuard<Context>()({
+      fields: ["id", "email", "name", "password"],
+      policy: { level: { id: true, email: true } },
+    })
+      .withDerive(({ verdictMap }) => ({
+        verdict: verdictMap.level,
+      }));
+
+    const result = guard.for({ userId: "1", role: "user" });
+    expect(result.verdict.pick({ id: 1, email: "a@b.com", name: "John", password: "secret" }))
+      .toEqual({ id: 1, email: "a@b.com" });
+  });
+
+  test("pickメソッドで許可フィールドが存在しない場合は空オブジェクトを返す", () => {
+    const guard = defineGuard<Context>()({
+      fields: ["id", "email", "name", "password"],
+      policy: { level: { id: true } },
+    })
+      .withDerive(({ verdictMap }) => ({
+        verdict: verdictMap.level,
+      }));
+
+    const result = guard.for({ userId: "1", role: "user" });
+    expect(result.verdict.pick({ name: "John", password: "secret" }))
+      .toEqual({});
+  });
 });
