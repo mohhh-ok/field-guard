@@ -42,7 +42,7 @@ import { defineGuard } from "field-guard";
 type Ctx = { userId: string; role: "admin" | "user" };
 type User = { id: string; email: string; name: string };
 
-const userGuard = defineGuard<"owner" | "other", Ctx>()({
+const userGuard = defineGuard<Ctx>()({
   fields: ["id", "email", "name"],
   policy: {
     owner: true,                    // all fields allowed
@@ -65,7 +65,7 @@ const userGuard = defineGuard<"owner" | "other", Ctx>()({
 Use `.withCheck<T>()` to resolve the access level based on the context and a target object:
 
 ```ts
-const userGuard = defineGuard<"owner" | "other", Ctx>()({
+const userGuard = defineGuard<Ctx>()({
   fields: ["id", "email", "name"],
   policy: {
     owner: true,
@@ -103,7 +103,7 @@ verdict.coversSome(["email"]);      // true — at least one requested field is 
 Use `.withDerive()` to compute additional properties from the context:
 
 ```ts
-const guard = defineGuard<"public", Ctx>()({
+const guard = defineGuard<Ctx>()({
   fields: ["id", "email"],
   policy: { public: true },
 }).withDerive(({ ctx }) => ({
@@ -149,14 +149,14 @@ mergeFieldVerdicts("intersection", [verdictA, verdictB], fields);
 This is also available as `mergeVerdicts` on every guard instance:
 
 ```ts
-const guard = defineGuard<"owner" | "admin", Ctx>()({ /* ... */ });
+const guard = defineGuard<Ctx>()({ /* ... */ });
 
 const verdict = guard.mergeVerdicts("union", { owner: true, admin: false });
 ```
 
 ## API Reference
 
-### `defineGuard<Levels, Context>()`
+### `defineGuard<Context>()`
 
 Returns a factory function that accepts `{ fields, policy }` and returns a guard chain.
 
