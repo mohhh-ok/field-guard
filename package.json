@@ -1,6 +1,6 @@
 {
   "name": "field-guard",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A lightweight, fully type-safe, field-level access control library for TypeScript",
   "type": "module",
   "exports": {
