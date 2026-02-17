@@ -5,7 +5,7 @@ describe("defineGuard - FieldVerdictの機能", () => {
   type Context = { userId: string; role: "admin" | "user" };
 
   test("coversAllメソッドで全フィールドの許可を確認できる", () => {
-    const guard = defineGuard<"level", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { level: { id: true, email: true } },
     })
@@ -20,7 +20,7 @@ describe("defineGuard - FieldVerdictの機能", () => {
   });
 
   test("coversSomeメソッドで一部フィールドの許可を確認できる", () => {
-    const guard = defineGuard<"level", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { level: { id: true, email: true } },
     })

@@ -5,7 +5,7 @@ describe("defineGuard - forなしでの直接アクセス", () => {
   type Context = { userId: string; role: "admin" | "user" };
 
   test("fieldsに直接アクセスできる", () => {
-    const guard = defineGuard<"level", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { level: true },
     });
@@ -14,7 +14,7 @@ describe("defineGuard - forなしでの直接アクセス", () => {
   });
 
   test("verdictMapに直接アクセスできる", () => {
-    const guard = defineGuard<"public" | "private", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: {
         public: { id: true, name: true },
@@ -27,7 +27,7 @@ describe("defineGuard - forなしでの直接アクセス", () => {
   });
 
   test("verdictMapのcoversAll/coversSomeが使える", () => {
-    const guard = defineGuard<"level", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { level: { id: true, email: true } },
     });
@@ -39,7 +39,7 @@ describe("defineGuard - forなしでの直接アクセス", () => {
   });
 
   test("mergeVerdictsに直接アクセスできる", () => {
-    const guard = defineGuard<"level1" | "level2", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: {
         level1: { id: true, email: true },
@@ -55,7 +55,7 @@ describe("defineGuard - forなしでの直接アクセス", () => {
   });
 
   test("withDerive後もfields/verdictMap/mergeVerdictsにアクセスできる", () => {
-    const guard = defineGuard<"public", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { public: { id: true } },
     }).withDerive(({ ctx }) => ({
@@ -68,7 +68,7 @@ describe("defineGuard - forなしでの直接アクセス", () => {
   });
 
   test("withCheck後もfields/verdictMap/mergeVerdictsにアクセスできる", () => {
-    const guard = defineGuard<"owner" | "other", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: {
         owner: true,

@@ -5,7 +5,7 @@ describe("defineGuard - エッジケース", () => {
   type Context = { userId: string; role: "admin" | "user" };
 
   test("フィールドが空の配列でも動作する", () => {
-    const guard = defineGuard<"level", Context>()({
+    const guard = defineGuard<Context>()({
       fields: [],
       policy: { level: true },
     });
@@ -15,7 +15,7 @@ describe("defineGuard - エッジケース", () => {
   });
 
   test("同じインスタンスで異なるコンテキストを使用できる", () => {
-    const guard = defineGuard<"level", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email"],
       policy: { level: true },
     })
@@ -31,7 +31,7 @@ describe("defineGuard - エッジケース", () => {
   });
 
   test("mergeVerdictsで空のflagsを渡すと空の結果が返る", () => {
-    const guard = defineGuard<"level1" | "level2", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email"],
       policy: {
         level1: { id: true },
@@ -47,7 +47,7 @@ describe("defineGuard - エッジケース", () => {
   });
 
   test("mergeVerdictsでintersectionモードで共通部分がない場合は空になる", () => {
-    const guard = defineGuard<"level1" | "level2", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name"],
       policy: {
         level1: { id: true },

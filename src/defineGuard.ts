@@ -113,8 +113,8 @@ function createChain<
   };
 }
 
-export function defineGuard<L extends string, C>() {
-  return <F extends string>(params: { fields: F[]; policy: FieldPolicy<L, F> }) => {
+export function defineGuard<C>() {
+  return <L extends string, F extends string>(params: { fields: F[]; policy: FieldPolicy<L, F> }) => {
     const { fields, policy } = params;
     const verdictMap = buildVerdictMap(policy, fields);
     const _mergeVerdicts = (

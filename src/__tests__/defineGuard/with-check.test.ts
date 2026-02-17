@@ -6,12 +6,12 @@ describe("defineGuard - withCheckメソッド", () => {
   type Target = { id: string; ownerId: string };
 
   test("checkメソッドが追加される", () => {
-    const guard = defineGuard<"public", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { public: true },
     })
-      .withCheck<Target>()((params) => {
-        return params.verdictMap.public;
+      .withCheck<Target>()(({ verdictMap }) => {
+        return verdictMap.public;
       });
 
     const result = guard.for({ userId: "1", role: "user" });
@@ -20,16 +20,16 @@ describe("defineGuard - withCheckメソッド", () => {
   });
 
   test("checkメソッドがtargetを受け取って処理できる", () => {
-    const guard = defineGuard<"owner" | "other", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: {
         owner: true,
         other: { id: true, name: true },
       },
     })
-      .withCheck<Target>()((params) => {
-        const isOwner = params.ctx.userId === params.target.ownerId;
-        return isOwner ? params.verdictMap.owner : params.verdictMap.other;
+      .withCheck<Target>()(({ ctx, target, verdictMap }) => {
+        const isOwner = ctx.userId === target.ownerId;
+        return isOwner ? verdictMap.owner : verdictMap.other;
       });
 
     const ctx: Context = { userId: "123", role: "user" };
@@ -46,15 +46,15 @@ describe("defineGuard - withCheckメソッド", () => {
   });
 
   test("withDeriveと組み合わせて使用できる", () => {
-    const guard = defineGuard<"public", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { public: { id: true } },
     })
       .withDerive(({ ctx }) => ({
         isAdmin: ctx.role === "admin",
       }))
-      .withCheck<Target>()((params) => {
-        return params.verdictMap.public;
+      .withCheck<Target>()(({ verdictMap }) => {
+        return verdictMap.public;
       });
 
     const result = guard.for({ userId: "1", role: "admin" });
@@ -66,7 +66,7 @@ describe("defineGuard - withCheckメソッド", () => {
   });
 
   test("複雑な判定ロジックを実装できる", () => {
-    const guard = defineGuard<"admin" | "owner" | "public", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: {
         admin: true,
@@ -74,12 +74,12 @@ describe("defineGuard - withCheckメソッド", () => {
         public: { id: true },
       },
     })
-      .withCheck<Target>()((params) => {
-        if (params.ctx.role === "admin") {
-          return params.verdictMap.admin;
+      .withCheck<Target>()(({ ctx, target, verdictMap }) => {
+        if (ctx.role === "admin") {
+          return verdictMap.admin;
         }
-        const isOwner = params.ctx.userId === params.target.ownerId;
-        return isOwner ? params.verdictMap.owner : params.verdictMap.public;
+        const isOwner = ctx.userId === target.ownerId;
+        return isOwner ? verdictMap.owner : verdictMap.public;
       });
 
     const adminResult = guard.for({ userId: "1", role: "admin" });

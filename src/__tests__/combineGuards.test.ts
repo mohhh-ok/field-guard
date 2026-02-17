@@ -8,7 +8,7 @@ describe("combineGuards", () => {
   type Post = { id: string; content: string; authorId: string };
 
   const createUserGuard = () =>
-    defineGuard<"owner" | "other", Ctx>()({
+    defineGuard<Ctx>()({
       fields: ["id", "email", "name"],
       policy: {
         owner: true,
@@ -20,7 +20,7 @@ describe("combineGuards", () => {
     });
 
   const createPostGuard = () =>
-    defineGuard<"author" | "public", Ctx>()({
+    defineGuard<Ctx>()({
       fields: ["id", "content"],
       policy: {
         author: true,
@@ -92,7 +92,7 @@ describe("combineGuards", () => {
 
   describe("withDeriveとの組み合わせ", () => {
     test("withDeriveで追加されたプロパティにアクセスできる", () => {
-      const guardWithDerive = defineGuard<"public", Ctx>()({
+      const guardWithDerive = defineGuard<Ctx>()({
         fields: ["id", "email"],
         policy: { public: true },
       }).withDerive(({ ctx }) => ({
@@ -111,7 +111,7 @@ describe("combineGuards", () => {
     });
 
     test("withDeriveとwithCheckの両方がある場合に両方アクセスできる", () => {
-      const guard = defineGuard<"owner" | "other", Ctx>()({
+      const guard = defineGuard<Ctx>()({
         fields: ["id", "email"],
         policy: {
           owner: true,
@@ -150,7 +150,7 @@ describe("combineGuards", () => {
 
   describe("resolveなしのガード", () => {
     test("withCheckなしのガードも結合できる", () => {
-      const simpleGuard = defineGuard<"public", Ctx>()({
+      const simpleGuard = defineGuard<Ctx>()({
         fields: ["id", "name"],
         policy: { public: true },
       }).withDerive(({ verdictMap }) => ({
@@ -168,7 +168,7 @@ describe("combineGuards", () => {
 
   describe("多数のガードの結合", () => {
     test("3つ以上のガードを結合できる", () => {
-      const tagGuard = defineGuard<"visible", Ctx>()({
+      const tagGuard = defineGuard<Ctx>()({
         fields: ["id", "label"],
         policy: { visible: true },
       }).withCheck<{ id: string; label: string }>()(({ verdictMap }) => {

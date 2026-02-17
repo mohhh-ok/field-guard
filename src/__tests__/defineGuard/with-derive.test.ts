@@ -5,7 +5,7 @@ describe("defineGuard - withDeriveメソッド", () => {
   type Context = { userId: string; role: "admin" | "user" };
 
   test("派生データを追加できる", () => {
-    const guard = defineGuard<"public", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { public: true },
     })
@@ -18,7 +18,7 @@ describe("defineGuard - withDeriveメソッド", () => {
   });
 
   test("複数の派生データを追加できる", () => {
-    const guard = defineGuard<"public", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { public: true },
     })
@@ -33,7 +33,7 @@ describe("defineGuard - withDeriveメソッド", () => {
   });
 
   test("verdictMapとfieldsにアクセスできる", () => {
-    const guard = defineGuard<"public", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: { public: { id: true } },
     })
@@ -49,7 +49,7 @@ describe("defineGuard - withDeriveメソッド", () => {
   });
 
   test("mergeVerdictsを使用してマージできる", () => {
-    const guard = defineGuard<"level1" | "level2", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "email", "name", "password"],
       policy: {
         level1: { id: true, email: true },

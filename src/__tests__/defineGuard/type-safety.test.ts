@@ -6,7 +6,7 @@ describe("defineGuard - 型安全性の確認", () => {
 
   test("指定したフィールド型が保持される", () => {
     type CustomFields = "field1" | "field2" | "field3";
-    const guard = defineGuard<"level", Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["field1", "field2", "field3"] satisfies readonly CustomFields[],
       policy: { level: { field1: true } },
     })
@@ -19,8 +19,7 @@ describe("defineGuard - 型安全性の確認", () => {
   });
 
   test("複数のレベル型が保持される", () => {
-    type Levels = "read" | "write" | "delete";
-    const guard = defineGuard<Levels, Context>()({
+    const guard = defineGuard<Context>()({
       fields: ["id", "data"],
       policy: {
         read: { id: true, data: true },
