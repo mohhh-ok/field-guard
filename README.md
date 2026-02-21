@@ -51,6 +51,8 @@ const userGuard = defineGuard<Ctx>()({
 });
 ```
 
+> `fields` and `policy` are both **optional**. You can omit either or both depending on your use case. See [Flexible Guard Definitions](#flexible-guard-definitions) below.
+
 #### Policy Modes
 
 - **`true`** — Allow all fields for this level
@@ -103,7 +105,42 @@ verdict.pick({ id: "1", email: "me@example.com", name: "Me" });
 // => { id: "1", name: "Me" }                            (other)
 ```
 
-### 5. Derive Extra Properties
+### 5. Flexible Guard Definitions
+
+`fields` and `policy` are both optional. This lets you use `defineGuard` purely for context-based logic (via `.withDerive` / `.withCheck`) without declaring any field-level policy.
+
+```ts
+// No arguments — derive-only guard
+const roleGuard = defineGuard<Ctx>()()
+  .withDerive(({ ctx }) => ({
+    isAdmin: ctx.role === "admin",
+  }));
+
+const g = roleGuard.for({ userId: "1", role: "admin" });
+g.isAdmin; // true
+```
+
+```ts
+// Empty object — equivalent to no arguments
+const guard = defineGuard<Ctx>()({});
+```
+
+```ts
+// fields only — no policy needed
+const guard = defineGuard<Ctx>()({
+  fields: ["id", "email", "name"],
+});
+guard.fields; // ["id", "email", "name"]
+```
+
+```ts
+// policy only — fields defaults to []
+const guard = defineGuard<Ctx>()({
+  policy: { admin: true, user: false },
+});
+```
+
+### 6. Derive Extra Properties
 
 Use `.withDerive()` to compute additional properties from the context:
 
@@ -119,7 +156,7 @@ const g = guard.for({ userId: "1", role: "admin" });
 g.isAdmin; // true
 ```
 
-### 6. Combine Multiple Guards
+### 7. Combine Multiple Guards
 
 Use `combineGuards` to bundle guards for different resources and bind them all at once:
 
@@ -137,7 +174,7 @@ g.users.check({ id: "1", email: "a@b.com", name: "A" });
 g.posts.check({ id: "p1", content: "hello", authorId: "1" });
 ```
 
-### 7. Merge Verdicts
+### 8. Merge Verdicts
 
 Merge multiple verdicts with `union` (any-of) or `intersection` (all-of) strategy:
 
@@ -163,7 +200,7 @@ const verdict = guard.mergeVerdicts("union", { owner: true, admin: false });
 
 ### `defineGuard<Context>()`
 
-Returns a factory function that accepts `{ fields, policy }` and returns a guard chain.
+Returns a factory function that accepts an optional `{ fields?, policy? }` object and returns a guard chain. Both `fields` and `policy` can be omitted — the argument itself can also be omitted entirely.
 
 ### Guard Chain Methods
 
