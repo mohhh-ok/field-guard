@@ -170,7 +170,54 @@ const g = guard.for({ userId: "1", role: "admin" });
 g.isAdmin; // true
 ```
 
-### 7. Combine Multiple Guards
+### 7. Row-Level Filtering with `withDerive`
+
+`withDerive` can also produce **row-level filter conditions** (similar to RLS) from the context. This lets you co-locate both row-level and field-level access rules in a single guard definition.
+
+#### Example with Drizzle ORM
+
+```ts
+import { eq } from "drizzle-orm";
+import { defineGuard } from "field-guard";
+
+type Ctx = { userId: string; role: "admin" | "user" };
+type Post = { id: string; content: string; authorId: string };
+
+const postGuard = defineGuard<Ctx>()({
+  fields: ["id", "content", "authorId"],
+  policy: {
+    owner: true,
+    other: { id: true, content: true },
+  },
+})
+  .withDerive(({ ctx }) => ({
+    where: ctx.role === "admin"
+      ? undefined
+      : eq(posts.authorId, ctx.userId),
+  }))
+  .withCheck<Post>()(({ ctx, target, verdictMap }) => {
+    const level = ctx.userId === target.authorId ? "owner" : "other";
+    return verdictMap[level];
+  });
+```
+
+#### Usage
+
+```ts
+const g = postGuard.for({ userId: "1", role: "user" });
+
+// Row-level: apply the derived `where` condition to your query
+const rows = await db.select().from(posts).where(g.where);
+
+// Field-level: pick only allowed fields per row
+const results = rows.map((row) => g.check(row).pick(row));
+```
+
+> **Row-level** filtering decides *which rows* a user can access.
+> **Field-level** filtering decides *which fields* are visible in each row.
+> By combining both in a single guard, your access rules stay in one place.
+
+### 8. Combine Multiple Guards
 
 Use `combineGuards` to bundle guards for different resources and bind them all at once:
 
@@ -188,7 +235,7 @@ g.users.check({ id: "1", email: "a@b.com", name: "A" });
 g.posts.check({ id: "p1", content: "hello", authorId: "1" });
 ```
 
-### 8. Merge Verdicts
+### 9. Merge Verdicts
 
 Merge multiple verdicts with `union` (any-of) or `intersection` (all-of) strategy:
 
