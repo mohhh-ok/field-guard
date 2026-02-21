@@ -4,6 +4,20 @@ A lightweight, fully type-safe, field-level access control library for TypeScrip
 
 Define **who** can see **which fields** of your data — with zero runtime dependencies.
 
+## Why field-guard?
+
+[CASL](https://casl.js.org/) is a great general-purpose authorization library — but if all you need is **field-level visibility control** in a TypeScript + ORM codebase, it can feel like more than you bargained for:
+
+- **Runtime subject tagging.** CASL requires `subject('Post', post)` to identify types at runtime. ORM results (e.g. from Drizzle) don't carry a `__typename`-like field, so you end up wrapping every query result manually.
+- **Type inference gaps.** The `SubjectType` system can lose type information, reducing TypeScript's value.
+- **Broad API surface.** CASL covers far more than field visibility — which is powerful, but also means more concepts to learn for a narrow use case.
+
+**field-guard** is purpose-built for that narrow use case:
+
+- **ORM results go in directly** — no `subject()` wrapping, no `__typename` injection
+- **Missing fields cause compiler errors** — the check function's target type enforces what's needed
+- **Minimal API** — `defineGuard`, `combineGuards`, and you're done
+
 ## Features
 
 - 🔒 **Field-level access control** — Grant or deny access per field, per access level
