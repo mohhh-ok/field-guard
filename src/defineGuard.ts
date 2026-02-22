@@ -10,8 +10,9 @@ type BaseParams<C, L extends string, F extends string> = {
 
 export type DeriveParams<C, L extends string, F extends string> = BaseParams<C, L, F>;
 
-export type ResolveParams<C, T, L extends string, F extends string> = BaseParams<C, L, F> & {
+export type ResolveParams<C, T, L extends string, F extends string, D = Record<string, never>> = BaseParams<C, L, F> & {
   target: T;
+  derived: D;
 };
 
 export type GuardBase<L extends string, F extends string> = {
@@ -25,6 +26,7 @@ export type GuardChain<
   L extends string,
   F extends string,
   R extends Record<string, unknown>,
+  D extends Record<string, unknown> = Record<string, never>,
   HasDerive extends boolean = false,
   HasResolve extends boolean = false,
 > =
@@ -33,15 +35,15 @@ export type GuardChain<
     for(ctx: C): R;
   }
   & (HasDerive extends false ? {
-      withDerive<D extends Record<string, unknown>>(
-        fn: (p: DeriveParams<C, L, F>) => D,
-      ): GuardChain<C, L, F, R & D, true, HasResolve>;
+      withDerive<D2 extends Record<string, unknown>>(
+        fn: (p: DeriveParams<C, L, F>) => D2,
+      ): GuardChain<C, L, F, R & D2, D & D2, true, HasResolve>;
     }
     : {})
   & (HasResolve extends false ? {
       withCheck<T>(): <M>(
-        fn: (p: ResolveParams<C, T, L, F>) => M,
-      ) => GuardChain<C, L, F, R & { check: (target: T) => M }, HasDerive, true>;
+        fn: (p: ResolveParams<C, T, L, F, D>) => M,
+      ) => GuardChain<C, L, F, R & { check: (target: T) => M }, D, HasDerive, true>;
     }
     : {});
 
@@ -70,6 +72,7 @@ function createChain<
   L extends string,
   F extends string,
   R extends Record<string, unknown>,
+  D extends Record<string, unknown> = Record<string, never>,
   HasDerive extends boolean = false,
   HasResolve extends boolean = false,
 >(
@@ -77,23 +80,29 @@ function createChain<
   verdictMap: FieldVerdictMap<L, F>,
   mergeVerdicts: (mode: MergeFieldVerdictsMode, flags: Partial<Record<L, boolean>>) => FieldVerdict<F>,
   deriveFn: ((p: DeriveParams<C, L, F>) => Record<string, unknown>) | undefined,
-  resolveFn: ((p: ResolveParams<C, any, L, F>) => any) | undefined,
-): GuardChain<C, L, F, R, HasDerive, HasResolve> {
+  resolveFn: ((p: ResolveParams<C, any, L, F, any>) => any) | undefined,
+): GuardChain<C, L, F, R, D, HasDerive, HasResolve> {
   return {
     fields,
     verdictMap,
     mergeVerdicts,
-    withDerive<D extends Record<string, unknown>>(fn: (p: DeriveParams<C, L, F>) => D) {
+    withDerive<D2 extends Record<string, unknown>>(fn: (p: DeriveParams<C, L, F>) => D2) {
       const prevDeriveFn = deriveFn;
       const nextDeriveFn = (p: DeriveParams<C, L, F>) => ({
         ...(prevDeriveFn ? prevDeriveFn(p) : {}),
         ...fn(p),
       });
-      return createChain<C, L, F, R & D, true, HasResolve>(fields, verdictMap, mergeVerdicts, nextDeriveFn, resolveFn);
+      return createChain<C, L, F, R & D2, D & D2, true, HasResolve>(
+        fields,
+        verdictMap,
+        mergeVerdicts,
+        nextDeriveFn,
+        resolveFn,
+      );
     },
     withCheck<T>() {
-      return <M>(fn: (p: ResolveParams<C, T, L, F>) => M) => {
-        return createChain<C, L, F, R & { check: (target: T) => M }, HasDerive, true>(
+      return <M>(fn: (p: ResolveParams<C, T, L, F, D>) => M) => {
+        return createChain<C, L, F, R & { check: (target: T) => M }, D, HasDerive, true>(
           fields,
           verdictMap,
           mergeVerdicts,
@@ -106,7 +115,7 @@ function createChain<
       const baseParams: BaseParams<C, L, F> = { ctx, fields, verdictMap, mergeVerdicts };
       const derived = deriveFn ? deriveFn(baseParams) : {};
       const result = resolveFn
-        ? { ...derived, check: (target: any) => resolveFn({ ...baseParams, target }) }
+        ? { ...derived, check: (target: any) => resolveFn({ ...baseParams, target, derived }) }
         : { ...derived };
       return result as R;
     },
