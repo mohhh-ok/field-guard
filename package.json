@@ -20,7 +20,7 @@
     "build": "tsc",
     "test": "bun run vitest run",
     "release": "release-it",
-    "prepublishOnly": "bun run build"
+    "prepublishOnly": "bun run test && bun run build"
   },
   "keywords": [
     "field",
