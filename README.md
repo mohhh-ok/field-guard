@@ -49,6 +49,16 @@ combineGuards<Ctx>()({
 })
 ```
 
+### Agent Skill
+
+Install the field-guard skill directly into your coding agent:
+
+```
+npx skills add mohhh-ok/field-guard
+```
+
+Supports Claude Code, Cursor, and other agents detected by the [`skills`](https://www.npmjs.com/package/skills) CLI.
+
 ## Installation
 
 ```
