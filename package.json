@@ -15,7 +15,7 @@
     "dist",
     "LICENSE",
     "README.md",
-    "SKILL.md"
+    "skills/SKILL.md"
   ],
   "scripts": {
     "build": "tsc",
