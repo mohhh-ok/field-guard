@@ -26,6 +26,29 @@ Define **who** can see **which fields** of your data — with zero runtime depen
 - 🧩 **Composable** — Combine multiple guards into a single object with `combineGuards`
 - 🦺 **Fully type-safe** — All fields, levels, and results are inferred from your definitions
 
+## Works well with AI coding tools
+
+field-guard's design aligns naturally with AI-driven development workflows:
+
+**Type-safe output validation** — Context, fields, and levels are all preserved as TypeScript types. The compiler immediately flags any mistakes in AI-generated code, turning type errors into a fast feedback loop.
+
+**Zero-risk extensibility** — Adding a new resource never touches existing guards:
+
+```ts
+combineGuards<Ctx>()({
+  users: userGuard,   // unchanged
+  posts: postGuard,   // add new resources without risk of regression
+});
+```
+
+**Consistent, predictable patterns** — Every guard follows the same shape. Once an AI sees one `.withCheck()` implementation, it can replicate the pattern accurately for any new resource:
+
+```ts
+.withCheck<Post>()(({ ctx, target, verdictMap }) => {
+  return verdictMap[ctx.userId === target.authorId ? "author" : "other"];
+})
+```
+
 ## Installation
 
 ```
